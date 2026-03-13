@@ -7,11 +7,13 @@ import requests
 import streamlit as st
 
 API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
+# Увеличенный таймаут для деплоя на Render (холодный старт может занимать 30–60 с)
+REQUEST_TIMEOUT = 90
 
 
 def fetch_records():
     try:
-        r = requests.get(f"{API_URL}/records", timeout=10)
+        r = requests.get(f"{API_URL}/records", timeout=REQUEST_TIMEOUT)
         r.raise_for_status()
         return r.json(), None
     except requests.RequestException as e:
@@ -24,6 +26,8 @@ st.title("Дашборд: потребление энергии и цены")
 data, error = fetch_records()
 if error:
     st.error(f"Не удалось загрузить данные: {error}")
+    if "timed out" in error.lower() or "timeout" in error.lower():
+        st.info("Если backend на Render: после простоя он «просыпается» 30–60 с. Обновите страницу через минуту.")
     st.stop()
 
 if not data:
@@ -94,7 +98,7 @@ if submit:
         "price_sib": price_sib,
     }
     try:
-        r = requests.post(f"{API_URL}/records", json=payload, timeout=10)
+        r = requests.post(f"{API_URL}/records", json=payload, timeout=REQUEST_TIMEOUT)
         if r.ok:
             st.success("Запись добавлена.")
             st.rerun()
@@ -109,7 +113,7 @@ st.subheader("Удалить запись")
 del_id = st.number_input("ID записи для удаления", min_value=0, value=0, step=1, key="delete_id")
 if st.button("Удалить"):
     try:
-        r = requests.delete(f"{API_URL}/records/{del_id}", timeout=10)
+        r = requests.delete(f"{API_URL}/records/{del_id}", timeout=REQUEST_TIMEOUT)
         if r.status_code == 404:
             st.error("Запись с таким id не найдена")
         elif r.ok:
