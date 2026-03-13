@@ -37,12 +37,12 @@ streamlit run frontend/app.py
 
 ### Backend на Render
 
-
+https://petrobond-task04-backend.onrender.com/
 
 В backend настроен CORS (CORSMiddleware с явным origin для Streamlit), чтобы запросы с развёрнутого frontend проходили.
 
 ### Frontend на Streamlit Cloud
 
-
+https://petrobond-task04-frontend.streamlit.app
 
 Данные на Render хранятся в CSV на диске; при перезапуске сервиса файл может сброситься, если не используется persistent disk.
